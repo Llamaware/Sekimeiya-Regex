@@ -231,7 +231,7 @@ init -10 python:
             self.FindText(-1)
         
         def IsMatch(self, src, target):
-            msg = src if persistent.search_case_sensitive else src.lower()
+            msg = src if persistent.search_case_sensitive or persistent.use_regular_expressions else src.lower()
             
             # Process {time} tags
             if "{time" in msg:
@@ -240,7 +240,7 @@ init -10 python:
                 msg = "".join([x[1] for x in txt_temp.tokens])
             
             if persistent.use_regular_expressions:
-                pattern = re.compile(target)
+                pattern = re.compile(target.replace("{{","{"))
                 found = bool(pattern.search(msg))
             else:
                 if persistent.search_exact_match:
@@ -265,7 +265,7 @@ init -10 python:
                 self.entry_buffer.clear() #Clear saved entries so we can highlight them correctly
                 reused_results = False
                 
-                if persistent.search_case_sensitive:
+                if persistent.search_case_sensitive or persistent.use_regular_expressions:
                     target = self.search_text
                 else:
                     target = self.search_text.lower()
@@ -424,7 +424,7 @@ init -10 python:
                         txt_temp.update()
                         msg = "".join([x[1] for x in txt_temp.tokens])
             
-                    if persistent.search_case_sensitive:
+                    if persistent.search_case_sensitive or persistent.use_regular_expressions:
                         source = msg
                         target = self.search_text
                     else:
@@ -432,7 +432,7 @@ init -10 python:
                         target = self.search_text.lower()
                         
                     if persistent.use_regular_expressions:
-                        matches = [(match.start(), match.end()) for match in re.finditer(target, source)]
+                        matches = [(match.start(), match.end()) for match in re.finditer(target.replace("{{","{"), source)]
 
                     else:
                         if persistent.search_exact_match:
